@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+tsconfig.tsbuildinfo
+
+# production build
+build/
+
+# env files
+.env*
+!.env.example
+
+# Claude Code internal files
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# large source video (keep only compressed outputs)
+public/hero-reel-original.mp4

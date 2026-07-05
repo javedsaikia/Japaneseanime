@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: #0d0618;
+  color: #fff6fb;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Reusable atmosphere layers (used by HeroBackground) ---- */
+
+.sky-gradient {
+  background: linear-gradient(
+    180deg,
+    #0d0618 0%,
+    #241042 26%,
+    #5a2a7d 48%,
+    #a83b7a 66%,
+    #e8663a 84%,
+    #ffcf8b 100%
+  );
+  background-size: 100% 220%;
+}
+
+/* God-ray beams fanning up from the horizon */
+.god-rays {
+  background: conic-gradient(
+    from 200deg at 50% 108%,
+    transparent 0deg,
+    rgba(255, 207, 139, 0.0) 8deg,
+    rgba(255, 207, 139, 0.28) 12deg,
+    transparent 16deg,
+    transparent 26deg,
+    rgba(255, 180, 120, 0.22) 30deg,
+    transparent 34deg,
+    transparent 46deg,
+    rgba(255, 220, 160, 0.26) 50deg,
+    transparent 54deg
+  );
+  mix-blend-mode: screen;
+  filter: blur(2px);
+}
+
+/* Soft drifting mist near the lower third */
+.mist {
+  background:
+    radial-gradient(60% 40% at 30% 90%, rgba(255, 143, 184, 0.22), transparent 70%),
+    radial-gradient(50% 35% at 75% 85%, rgba(255, 162, 94, 0.18), transparent 70%);
+  filter: blur(8px);
+}
+
+/* Cinematic vignette */
+.vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* Subtle film grain via animated noise */
+.film-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+}
+
+/* Lens flare bloom */
+.lens-flare {
+  background: radial-gradient(
+    circle,
+    rgba(255, 240, 220, 0.9) 0%,
+    rgba(255, 207, 139, 0.45) 18%,
+    rgba(255, 143, 184, 0.2) 38%,
+    transparent 68%
+  );
+  filter: blur(4px);
+}
+
+.text-stroke-rose {
+  -webkit-text-stroke: 1px rgba(255, 143, 184, 0.35);
+}
+
+/* Gaze cursor dot */
+.gaze-dot {
+  position: fixed;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 207, 139, 0.9);
+  background: rgba(255, 95, 162, 0.25);
+  box-shadow: 0 0 18px rgba(255, 95, 162, 0.8);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  transition: width 0.12s ease, height 0.12s ease, background 0.12s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
