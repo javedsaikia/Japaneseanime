@@ -32,10 +32,10 @@ export function HeroBackground({ videoSrc }: { videoSrc?: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
-  // Skip video on slow connections or small screens (saves mobile data)
+  // Skip only on provably slow connections — NOT screen width.
+  // Mobile Safari must see the video; width-skipping broke it entirely.
   const [skipVideo] = useState(() => {
     if (typeof window === "undefined") return false;
-    if (window.innerWidth < 768) return true;
     const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
     return conn?.saveData === true || conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g";
   });
@@ -49,21 +49,22 @@ export function HeroBackground({ videoSrc }: { videoSrc?: string }) {
     return () => window.removeEventListener("pointermove", onMove);
   }, [px, py]);
 
-  // Autoplay reliably: React doesn't emit `muted` as a real DOM attribute,
-  // which makes browsers veto autoplay. Set it imperatively and kick play().
-  // Respect prefers-reduced-motion: show the first frame, don't loop.
+  // Kick playback eagerly on mount — do NOT wait for onCanPlay.
+  // iOS Safari ignores the `autoPlay` attribute and needs an explicit play()
+  // call; without it onCanPlay never fires, videoReady stays false, opacity = 0.
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || !videoReady || skipVideo) return;
+    if (!v) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       v.pause();
       return;
     }
-    v.muted = true;
+    v.muted = true; // set imperatively — React's muted prop is unreliable on Safari
+    v.load();       // force Safari to start buffering (preload hint is ignored on cellular)
     v.play().catch(() => {
-      /* if autoplay is still vetoed, the gradient stays — no crash */
+      /* vetoed by browser policy → gradient fallback remains, no crash */
     });
-  }, [videoReady]);
+  }, []); // run once on mount, independent of videoReady
 
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -85,7 +86,7 @@ export function HeroBackground({ videoSrc }: { videoSrc?: string }) {
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             poster="/hero-poster.jpg"
             onCanPlay={() => setVideoReady(true)}
             onError={() => setVideoFailed(true)}
@@ -118,7 +119,7 @@ export function HeroBackground({ videoSrc }: { videoSrc?: string }) {
       <div className="mist absolute inset-0" />
 
       {/* sakura petals */}
-      <SakuraCanvas density={typeof window !== "undefined" && window.innerWidth < 768 ? 28 : 64} />
+      <SakuraCanvas density={64} />
 
       {/* lens flare bloom, top-right sun */}
       <motion.div
