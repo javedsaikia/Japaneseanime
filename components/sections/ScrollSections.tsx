@@ -134,7 +134,7 @@ function OriginalsSection() {
               <img
                 src={show.image}
                 alt={`${show.title} key art`}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                className="absolute inset-0 h-full w-full object-cover brightness-105 saturate-110 transition-transform duration-[900ms] ease-out group-hover:scale-105"
               />
             ) : (
               <div
@@ -146,10 +146,9 @@ function OriginalsSection() {
               </div>
             )}
 
-            {/* atmosphere + legibility */}
+            {/* atmosphere + legibility — just enough bottom fade for the title, image stays bright */}
             <div className="film-grain absolute inset-0" />
-            <div className="absolute inset-0 bg-gradient-to-r from-dusk-950 via-dusk-950/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-dusk-950 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-dusk-950/95 from-0% via-dusk-950/15 via-35% to-transparent to-60%" />
 
             {/* overlaid title, like the hero */}
             <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
