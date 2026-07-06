@@ -142,6 +142,6 @@ When adding new sections, pick kanji with thematic weight, not just aesthetic. A
 
 **Studio name** — "AKATSUKI" (暁) = dawn. The brand voice is cinematic, serious, mythic — not kawaii/cute. Copy should feel like a film title card, not a fan site.
 
-**Nav logo** — currently shows `才輝亜 SAIKIA` (Javed's name in katakana-adjacent kanji). This is intentional as a personal brand marker.
+**Nav logo** — shows `才輝亜雷安` / `Saikia Rayyan` (Javed's name in katakana-adjacent kanji), gold gradient calligraphy-style kanji over small tracked-caps latin subtitle. This is intentional as a personal brand marker.
 
 **Sakura aesthetics** — petal hue range is `hsl(330-350)` (deep pink, not pastel). The palette intentionally skews warm-cinematic rather than soft-shoujo.

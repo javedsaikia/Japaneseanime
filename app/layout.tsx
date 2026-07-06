@@ -38,7 +38,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${righteous.variable} ${poppins.variable}`}>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

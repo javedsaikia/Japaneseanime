@@ -119,7 +119,7 @@ export function HeroBackground({ videoSrc }: { videoSrc?: string }) {
       <div className="mist absolute inset-0" />
 
       {/* sakura petals */}
-      <SakuraCanvas density={64} />
+      <SakuraCanvas />
 
       {/* lens flare bloom, top-right sun */}
       <motion.div

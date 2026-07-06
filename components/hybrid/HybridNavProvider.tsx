@@ -26,6 +26,7 @@ import {
   stopGaze,
 } from "./gazeEngine";
 import { startGesture, stopGesture } from "./gestureEngine";
+import { isMobileDevice } from "./device";
 
 const HybridNavContext = createContext<HybridNavContextValue | null>(null);
 
@@ -36,6 +37,7 @@ function broadcast(type: GlobalGestureType) {
 
 export function HybridNavProvider({ children }: { children: React.ReactNode }) {
   const [supported, setSupported] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [gazeEnabled, setGazeEnabled] = useState(false);
   const [gestureEnabled, setGestureEnabled] = useState(false);
   const [status, setStatus] = useState<HybridStatus>("idle");
@@ -61,6 +63,7 @@ export function HybridNavProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setSupported(isSecureCameraContext());
+    setIsMobile(isMobileDevice());
   }, []);
 
   const flashToast = useCallback((msg: string) => {
@@ -137,6 +140,11 @@ export function HybridNavProvider({ children }: { children: React.ReactNode }) {
 
   // ---- enable / disable gaze ----
   const enableGaze = useCallback(async () => {
+    if (isMobileDevice()) {
+      setError("Eye-gaze tracking is desktop-only — use touch or hand gestures here.");
+      setStatus("error");
+      return;
+    }
     if (!isSecureCameraContext()) {
       setError("Camera unavailable — needs HTTPS or localhost + a webcam.");
       setStatus("error");
@@ -249,6 +257,7 @@ export function HybridNavProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<HybridNavContextValue>(
     () => ({
       supported,
+      isMobile,
       gazeEnabled,
       gestureEnabled,
       status,
@@ -270,6 +279,7 @@ export function HybridNavProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       supported,
+      isMobile,
       gazeEnabled,
       gestureEnabled,
       status,

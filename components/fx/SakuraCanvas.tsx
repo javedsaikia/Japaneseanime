@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePerfMode } from "./perfMode";
 
 interface Petal {
   x: number;
@@ -18,8 +19,9 @@ interface Petal {
  * Procedural falling sakura petals on a <canvas>. No image assets.
  * DPR-aware, pauses when the tab is hidden, and honors prefers-reduced-motion.
  */
-export function SakuraCanvas({ density = 60 }: { density?: number }) {
+export function SakuraCanvas({ density = 28 }: { density?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [perfMode] = usePerfMode();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,7 +61,8 @@ export function SakuraCanvas({ density = 60 }: { density?: number }) {
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = reduced ? Math.round(density / 3) : density;
+      const base = perfMode ? Math.round(density / 2) : density;
+      const count = reduced ? Math.round(base / 3) : base;
       petals = Array.from({ length: count }, () => makePetal(true));
     };
 
@@ -70,22 +73,29 @@ export function SakuraCanvas({ density = 60 }: { density?: number }) {
       ctx.globalAlpha = p.alpha;
       // petal = two mirrored bezier lobes
       const s = p.size;
-      const grad = ctx.createLinearGradient(0, -s, 0, s);
-      grad.addColorStop(0, `hsla(${p.hue}, 90%, 82%, 1)`);
-      grad.addColorStop(1, `hsla(${p.hue - 8}, 85%, 68%, 1)`);
-      ctx.fillStyle = grad;
+      if (perfMode) {
+        // flat fill — skip the per-frame gradient + vein stroke on low power
+        ctx.fillStyle = `hsla(${p.hue}, 88%, 76%, 1)`;
+      } else {
+        const grad = ctx.createLinearGradient(0, -s, 0, s);
+        grad.addColorStop(0, `hsla(${p.hue}, 90%, 82%, 1)`);
+        grad.addColorStop(1, `hsla(${p.hue - 8}, 85%, 68%, 1)`);
+        ctx.fillStyle = grad;
+      }
       ctx.beginPath();
       ctx.moveTo(0, -s);
       ctx.bezierCurveTo(s * 0.7, -s * 0.6, s * 0.6, s * 0.6, 0, s);
       ctx.bezierCurveTo(-s * 0.6, s * 0.6, -s * 0.7, -s * 0.6, 0, -s);
       ctx.fill();
-      // subtle vein
-      ctx.strokeStyle = `hsla(${p.hue - 12}, 80%, 60%, 0.4)`;
-      ctx.lineWidth = 0.6;
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.8);
-      ctx.lineTo(0, s * 0.8);
-      ctx.stroke();
+      if (!perfMode) {
+        // subtle vein
+        ctx.strokeStyle = `hsla(${p.hue - 12}, 80%, 60%, 0.4)`;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.8);
+        ctx.lineTo(0, s * 0.8);
+        ctx.stroke();
+      }
       ctx.restore();
     };
 
@@ -131,7 +141,7 @@ export function SakuraCanvas({ density = 60 }: { density?: number }) {
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [density]);
+  }, [density, perfMode]);
 
   return (
     <canvas

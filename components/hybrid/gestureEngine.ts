@@ -13,9 +13,13 @@
 
 import {
   GESTURE_COOLDOWN_MS,
+  GESTURE_FRAME_SKIP_MOBILE,
+  GESTURE_VIDEO_DESKTOP,
+  GESTURE_VIDEO_MOBILE,
   PINCH_THRESHOLD,
   type GlobalGestureType,
 } from "./types";
+import { isMobileDevice } from "./device";
 
 interface Landmark {
   x: number;
@@ -109,8 +113,12 @@ export async function startGesture(handlers: GestureHandlers): Promise<void> {
     ]);
   }
 
+  const onMobile = isMobileDevice();
+  const videoConstraints = onMobile ? GESTURE_VIDEO_MOBILE : GESTURE_VIDEO_DESKTOP;
+  const frameSkip = onMobile ? GESTURE_FRAME_SKIP_MOBILE : 1;
+
   stream = await navigator.mediaDevices.getUserMedia({
-    video: { width: 640, height: 480, facingMode: "user" },
+    video: { ...videoConstraints, facingMode: "user" },
     audio: false,
   });
 
@@ -127,8 +135,14 @@ export async function startGesture(handlers: GestureHandlers): Promise<void> {
   palmHoldStart = null;
   fistHoldStart = null;
 
+  let frameCount = 0;
   const loop = () => {
     if (!running || !video || !landmarker) return;
+    frameCount++;
+    if (frameCount % frameSkip !== 0) {
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
     const now = performance.now();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (landmarker as any).detectForVideo(video, now);

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useHybridNav } from "./HybridNavProvider";
+import { usePerfMode } from "../fx/perfMode";
 
 function Toggle({
   label,
@@ -29,27 +30,39 @@ function Toggle({
         <span className="block font-body text-sm font-semibold text-haze">
           {label}
         </span>
-        <span className="block font-body text-xs text-rose-200/60">{hint}</span>
+        <span className="block font-body text-xs text-rose-200/60">
+          {busy ? "Starting camera…" : hint}
+        </span>
       </span>
-      <span
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 ${
-          on ? "bg-rose-glow shadow-glow-rose" : "bg-dusk-600"
-        }`}
-      >
+      {busy ? (
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-haze transition-transform duration-200 ${
-            on ? "translate-x-6" : "translate-x-1"
-          }`}
+          aria-hidden
+          className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-rose-200/30 border-t-ember-gold"
         />
-      </span>
+      ) : (
+        <span
+          className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 ${
+            on ? "bg-rose-glow shadow-glow-rose" : "bg-dusk-600"
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-haze transition-transform duration-200 ${
+              on ? "translate-x-6" : "translate-x-1"
+            }`}
+          />
+        </span>
+      )}
     </button>
   );
 }
 
 export function CameraSettingsPanel() {
   const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState<"gaze" | "gesture" | null>(null);
+  const [perfMode, setPerfMode] = usePerfMode();
   const {
     supported,
+    isMobile,
     gazeEnabled,
     gestureEnabled,
     status,
@@ -63,6 +76,18 @@ export function CameraSettingsPanel() {
   } = useHybridNav();
 
   const busy = status === "loading";
+  useEffect(() => {
+    if (!busy) setPending(null);
+  }, [busy]);
+
+  const startGaze = () => {
+    setPending("gaze");
+    void enableGaze();
+  };
+  const startGesture = () => {
+    setPending("gesture");
+    void enableGesture();
+  };
 
   return (
     <div className="fixed bottom-5 right-5 z-[90]">
@@ -90,19 +115,29 @@ export function CameraSettingsPanel() {
             <div className="mt-4 space-y-3">
               <Toggle
                 label="Gaze pointing"
-                hint="Look to highlight · dwell 1.8s to select"
+                hint={
+                  isMobile
+                    ? "Desktop only — needs a fixed webcam angle"
+                    : "Look to highlight · dwell 1.8s to select"
+                }
                 on={gazeEnabled}
-                busy={busy}
-                disabled={!supported}
-                onClick={gazeEnabled ? disableGaze : enableGaze}
+                busy={busy && pending === "gaze"}
+                disabled={!supported || isMobile}
+                onClick={gazeEnabled ? disableGaze : startGaze}
               />
               <Toggle
                 label="Hand gestures"
                 hint="Pinch = confirm · 3 fingers = next · fist = home · palm hold = menu"
                 on={gestureEnabled}
-                busy={busy}
+                busy={busy && pending === "gesture"}
                 disabled={!supported}
-                onClick={gestureEnabled ? disableGesture : enableGesture}
+                onClick={gestureEnabled ? disableGesture : startGesture}
+              />
+              <Toggle
+                label="Performance mode"
+                hint="Fewer petals, simpler effects — for low-end devices"
+                on={perfMode}
+                onClick={() => setPerfMode(!perfMode)}
               />
             </div>
 

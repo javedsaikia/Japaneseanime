@@ -25,6 +25,8 @@ export type GlobalGestureType = "home" | "next" | "toggle-menu";
 export interface HybridNavState {
   /** getUserMedia + secure context available at all. */
   supported: boolean;
+  /** Coarse-pointer / touch device — gaze tracking is desktop-only. */
+  isMobile: boolean;
   gazeEnabled: boolean;
   gestureEnabled: boolean;
   status: HybridStatus;
@@ -60,3 +62,10 @@ export const PINCH_THRESHOLD = 0.055; // normalized thumb<->index distance
 export const GAZE_SMOOTHING = 0.35; // EMA alpha (higher = snappier)
 export const GESTURE_COOLDOWN_MS = 1100; // debounce for global gestures
 export const CALIBRATION_POINTS = 9;
+
+// MediaPipe getUserMedia constraints — lower res/fps on mobile keeps the
+// hand-tracking loop from cooking phone CPUs/battery.
+export const GESTURE_VIDEO_DESKTOP = { width: 640, height: 480, frameRate: 30 };
+export const GESTURE_VIDEO_MOBILE = { width: 480, height: 360, frameRate: 20 };
+// Process every Nth camera frame on mobile; desktop processes every frame.
+export const GESTURE_FRAME_SKIP_MOBILE = 2;

@@ -146,9 +146,14 @@ export function HybridHero() {
       <nav className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 md:px-12">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="font-display text-xl tracking-wide text-haze drop-shadow-text-glow cursor-pointer"
+          className="group flex flex-col items-start leading-none cursor-pointer"
         >
-          才輝亜 SAIKIA
+          <span className="font-display text-2xl tracking-wide bg-gradient-to-b from-ember-gold via-ember-400 to-ember-600 bg-clip-text text-transparent drop-shadow-gold-glow transition-transform duration-300 group-hover:scale-105">
+            才輝亜雷安
+          </span>
+          <span className="mt-1 font-body text-[10px] font-semibold uppercase tracking-[0.4em] text-ember-gold/80">
+            Saikia Rayyan
+          </span>
         </button>
 
         <div className="hidden items-center gap-2 md:flex">
